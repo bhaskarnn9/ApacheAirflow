@@ -1,0 +1,42 @@
+import pandas as pd
+from airflow import DAG
+from airflow.utils.dates import days_ago
+from airflow.operators.python import PythonOperator
+
+default_args = {'owner': 'bhas.neel'}
+
+
+def read_csv_file():
+    df = pd.read_csv('/Users/bhaskarneella/airflow/datasets/insurance.csv')
+    print(df)
+    return df.to_json()
+
+
+def remove_null_values(**kwargs):
+    ti = kwargs['ti']
+    json_data = ti.xcom_pull(task_ids='read_csv_file')
+    df = pd.read_json(json_data)
+    df = df.dropna()
+    print(df)
+    return df.to_json()
+
+
+with DAG(
+        dag_id='python_pipeline',
+        description='Running a Python pipeline',
+        default_args=default_args,
+        start_date=days_ago(1),
+        schedule_interval='@daily',
+        tags=['python', 'transform', 'pipeline']
+) as dag:
+    read_csv_file = PythonOperator(
+        task_id='read_csv_file',
+        python_callable=read_csv_file
+    )
+
+    remove_null_values = PythonOperator(
+        task_id='remove_null_values',
+        python_callable=remove_null_values
+    )
+
+read_csv_file >> remove_null_values
