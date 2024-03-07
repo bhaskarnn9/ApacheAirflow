@@ -1,4 +1,4 @@
-**Topics covered in Apache Airflow Module**
+**Topics covered in Apache Airflow Essentials Module**
 1. Apache Airflow Concepts and Architecture
 2. Modeling DAG workflows with tasks and dependencies
 3. Creating tasks using operators (Python, Bash and Branch)
